@@ -9,7 +9,7 @@ import java.util.List;
 
 public class WillhabenJavaAssessment {
 
-    public static void main(String[]args) throws IOException {
+    public static void main(String[] args) throws IOException {
 
         System.out.println("Please provide the input file name");
         System.out.println("Please provide the full path, for example C:\\Users\\user\\package_name\\file_name.txt");

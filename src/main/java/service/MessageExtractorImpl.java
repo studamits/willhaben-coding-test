@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 
 public class MessageExtractorImpl implements MessageExtractor {
 
-    private static final Logger LOGGER = Logger.getLogger(MessageExtractorImpl.class.getName());;
+    private static final Logger LOGGER = Logger.getLogger(MessageExtractorImpl.class.getName());
 
     @Override
     public List<Message> getMessages(String filename) throws IOException {
@@ -29,7 +29,7 @@ public class MessageExtractorImpl implements MessageExtractor {
     public List<String> getValidHashList(List<Message> messages) {
         List<String> validHashes = new ArrayList<>();
 
-        if(messages == null)
+        if (messages == null)
             return validHashes;
 
         for (Message message : messages) {
@@ -77,7 +77,7 @@ public class MessageExtractorImpl implements MessageExtractor {
         List<Message> validMessages = new ArrayList<>();
         for (String line : messagesLines) {
             Message message = extractMessage(line);
-            if(message != null)
+            if (message != null)
                 validMessages.add(message);
         }
         return validMessages;
@@ -100,7 +100,7 @@ public class MessageExtractorImpl implements MessageExtractor {
         String nonceField = messageData[3];
         String emptyLine = messageData[4];
 
-        if(!emptyLine.equals(""))
+        if (!emptyLine.equals(""))
             return null;
 
         boolean isMessageHeaderValid = isMessageHeaderValid(fromEmailField, toEmailField, stampField, nonceField);
