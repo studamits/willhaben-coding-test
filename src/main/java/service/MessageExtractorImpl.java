@@ -1,6 +1,7 @@
 package service;
 
 import dto.Message;
+import jdk.nashorn.internal.runtime.logging.DebugLogger;
 import utils.RegexUtil;
 
 import java.io.FileInputStream;
@@ -12,11 +13,15 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MessageExtractorImpl implements MessageExtractor {
 
+    private static final Logger LOGGER = Logger.getLogger(MessageExtractorImpl.class.getName());;
+
     @Override
-    public List<Message> getMessages(String filename) {
+    public List<Message> getMessages(String filename) throws IOException {
         List<String> fileContent = readFileContent(filename);
 
         return extractMessages(fileContent);
@@ -37,7 +42,7 @@ public class MessageExtractorImpl implements MessageExtractor {
         return validHashes;
     }
 
-    private List<String> readFileContent(String filename) {
+    private List<String> readFileContent(String filename) throws IOException {
         List<String> fileLines = new ArrayList<>();
         try {
             FileInputStream fis = new FileInputStream(filename);
@@ -49,7 +54,8 @@ public class MessageExtractorImpl implements MessageExtractor {
             fis.close();
             sc.close();
         } catch (IOException ex) {
-            System.out.println("IOException thrown" + ex.getStackTrace());
+            LOGGER.warning("IOException thrown " + ex);
+            throw ex;
         }
         return fileLines;
     }
