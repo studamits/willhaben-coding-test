@@ -46,7 +46,7 @@ public class MessageExtractorTest {
     }
 
     @Test
-    public void getMessages_EmptyFileContent_ReturnsNull() throws IOException {
+    public void getMessages_EmptyFileContent_ReturnsEmptyMessageList() throws IOException {
         String fileContent = "";
 
         writeFileContent(fileContent );
@@ -56,6 +56,161 @@ public class MessageExtractorTest {
         assertEquals(0, messages.size());
     }
 
+    @Test
+    public void getMessages_MessageLastLineNotContainsDot_ReturnsEmptyMessageList() throws IOException {
+        String fileContent = "From: bob@example.com\n" +
+                "To: alice@example.com\n" +
+                "Stamp: 0000JJTueU2utLQnAA0NIZ3NQZwGaskSQFkviXQyJsU=\n" +
+                "Nonce: 24830964\n" +
+                "\n" +
+                "Hello Alice.\n" +
+                "I found some exciting new thing called bitcoin. Have you heard about it?\n" +
+                "Your friend,\n" +
+                "Bob\n";
+
+        writeFileContent(fileContent );
+        List<Message> messages = messageExtractor.getMessages(FILE_NAME);
+
+        assertEquals(0, messages.size());
+    }
+
+    @Test
+    public void getMessages_MessageHeaderAndMessageBodyNotContainsEmptyLine_ReturnsEmptyMessageList() throws IOException {
+        String fileContent = "From: bob@example.com\n" +
+                "To: alice@example.com\n" +
+                "Stamp: 0000JJTueU2utLQnAA0NIZ3NQZwGaskSQFkviXQyJsU=\n" +
+                "Nonce: 24830964\n" +
+                "Hello Alice.\n" +
+                "I found some exciting new thing called bitcoin. Have you heard about it?\n" +
+                "Your friend,\n" +
+                "Bob\n" +
+                ".";
+
+        writeFileContent(fileContent );
+        List<Message> messages = messageExtractor.getMessages(FILE_NAME);
+
+        assertEquals(0, messages.size());
+    }
+
+    @Test
+    public void getMessages_MessageHeaderFromNotValid_ReturnsEmptyMessageList() throws IOException {
+        String fileContent = "From: bob@example.com\n" +
+                "To: alice@example.com\n" +
+                "Stamp: 0000JJTueU2utLQnAA0NIZ3NQZwGaskSQFkviXQyJsU=\n" +
+                "Nonce: 24830964\n" +
+                "\n" +
+                "Hello Alice.\n" +
+                "I found some exciting new thing called bitcoin. Have you heard about it?\n" +
+                "Your friend,\n" +
+                "Bob\n";
+
+        writeFileContent(fileContent );
+        List<Message> messages = messageExtractor.getMessages(FILE_NAME);
+
+        assertEquals(0, messages.size());
+    }
+
+    @Test
+    public void getMessages_MessageHeaderToNotValid_ReturnsEmptyMessageList() throws IOException {
+        String fileContent = "From: bob@example.com\n" +
+                "To: alice@example.com\n" +
+                "Stamp: 0000JJTueU2utLQnAA0NIZ3NQZwGaskSQFkviXQyJsU=\n" +
+                "Nonce: 24830964\n" +
+                "\n" +
+                "Hello Alice.\n" +
+                "I found some exciting new thing called bitcoin. Have you heard about it?\n" +
+                "Your friend,\n" +
+                "Bob\n";
+
+        writeFileContent(fileContent );
+        List<Message> messages = messageExtractor.getMessages(FILE_NAME);
+
+        assertEquals(0, messages.size());
+    }
+
+    @Test
+    public void getMessages_MessageHeaderStampNotValid_ReturnsEmptyMessageList() throws IOException {
+        String fileContent = "From: bob@example.com\n" +
+                "To: alice@example.com\n" +
+                "Stampa: 0000JJTueU2utLQnAA0NIZ3NQZwGaskSQFkviXQyJsU=\n" +
+                "Nonce: 24830964\n" +
+                "\n" +
+                "Hello Alice.\n" +
+                "I found some exciting new thing called bitcoin. Have you heard about it?\n" +
+                "Your friend,\n" +
+                "Bob\n";
+
+        writeFileContent(fileContent );
+        List<Message> messages = messageExtractor.getMessages(FILE_NAME);
+
+        assertEquals(0, messages.size());
+    }
+
+    @Test
+    public void getMessages_ValidMessageString_ReturnsMessage() throws IOException {
+        String fileContent = "From: bob@example.com\n" +
+                "To: alice@example.com\n" +
+                "Stamp: 0000JJTueU2utLQnAA0NIZ3NQZwGaskSQFkviXQyJsU=\n" +
+                "Nonce: 24830964\n" +
+                "\n" +
+                "Hello Alice.\n" +
+                "I found some exciting new thing called bitcoin. Have you heard about it?\n" +
+                "Your friend,\n" +
+                "Bob\n" +
+                ".";
+
+        writeFileContent(fileContent );
+        List<Message> messages = messageExtractor.getMessages(FILE_NAME);
+
+        assertEquals(1, messages.size());
+    }
+
+    @Test
+    public void getValidHashList_PassedMessageListNull_ReturnsEmptyStringList() throws IOException {
+        List<String> validMessagesSHA = messageExtractor.getValidHashList(null);
+
+        assertEquals(0, validMessagesSHA.size());
+    }
+
+    @Test
+    public void getValidHashList_MessageBase64SHAAndStampNotEquals_ReturnsEmptyStringList() throws IOException {
+        String fileContent = "From: bob@example.com\n" +
+                "To: alice@example.com\n" +
+                "Stamp: test=\n" +
+                "Nonce: 24830964\n" +
+                "\n" +
+                "Hello Alice.\n" +
+                "I found some exciting new thing called bitcoin. Have you heard about it?\n" +
+                "Your friend,\n" +
+                "Bob\n" +
+                ".";
+
+        writeFileContent(fileContent );
+        List<Message> messages = messageExtractor.getMessages(FILE_NAME);
+        List<String> validMessagesSHA = messageExtractor.getValidHashList(messages);
+
+        assertEquals(0, validMessagesSHA.size());
+    }
+
+    @Test
+    public void getValidHashList_MessageBase64SHAAndStampValid_ReturnsStringList() throws IOException {
+        String fileContent = "From: bob@example.com\n" +
+                "To: alice@example.com\n" +
+                "Stamp: 0000JJTueU2utLQnAA0NIZ3NQZwGaskSQFkviXQyJsU=\n" +
+                "Nonce: 24830964\n" +
+                "\n" +
+                "Hello Alice.\n" +
+                "I found some exciting new thing called bitcoin. Have you heard about it?\n" +
+                "Your friend,\n" +
+                "Bob\n" +
+                ".";
+
+        writeFileContent(fileContent );
+        List<Message> messages = messageExtractor.getMessages(FILE_NAME);
+        List<String> validMessagesSHA = messageExtractor.getValidHashList(messages);
+
+        assertEquals(1, validMessagesSHA.size());
+    }
 
     private void writeFileContent(String content) throws IOException {
         FileWriter fileWriter = new FileWriter(FILE_NAME);

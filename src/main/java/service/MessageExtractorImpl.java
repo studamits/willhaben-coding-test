@@ -1,7 +1,6 @@
 package service;
 
 import dto.Message;
-import jdk.nashorn.internal.runtime.logging.DebugLogger;
 import utils.RegexUtil;
 
 import java.io.FileInputStream;
@@ -13,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MessageExtractorImpl implements MessageExtractor {
@@ -30,6 +28,9 @@ public class MessageExtractorImpl implements MessageExtractor {
     @Override
     public List<String> getValidHashList(List<Message> messages) {
         List<String> validHashes = new ArrayList<>();
+
+        if(messages == null)
+            return validHashes;
 
         for (Message message : messages) {
             try {
@@ -76,7 +77,8 @@ public class MessageExtractorImpl implements MessageExtractor {
         List<Message> validMessages = new ArrayList<>();
         for (String line : messagesLines) {
             Message message = extractMessage(line);
-            validMessages.add(message);
+            if(message != null)
+                validMessages.add(message);
         }
         return validMessages;
     }
@@ -96,6 +98,10 @@ public class MessageExtractorImpl implements MessageExtractor {
         String toEmailField = messageData[1];
         String stampField = messageData[2];
         String nonceField = messageData[3];
+        String emptyLine = messageData[4];
+
+        if(!emptyLine.equals(""))
+            return null;
 
         boolean isMessageHeaderValid = isMessageHeaderValid(fromEmailField, toEmailField, stampField, nonceField);
         if (!isMessageHeaderValid) {
