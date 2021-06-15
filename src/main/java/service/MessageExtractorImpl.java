@@ -24,12 +24,16 @@ public class MessageExtractorImpl implements MessageExtractor {
     }
 
     @Override
-    public List<String> validHashesList(List<Message> messages) throws NoSuchAlgorithmException {
+    public List<String> getValidHashList(List<Message> messages) {
         List<String> validHashes = new ArrayList<>();
 
         for (Message message : messages) {
-            if (isMessageValid(message))
-                validHashes.add(message.getStamp());
+            try {
+                if (isMessageValid(message))
+                    validHashes.add(message.getStamp());
+            } catch (NoSuchAlgorithmException ex) {
+                System.out.println("NoSuchAlgorithmException thrown" + ex.getStackTrace());
+            }
         }
         return validHashes;
     }
@@ -41,12 +45,12 @@ public class MessageExtractorImpl implements MessageExtractor {
             Scanner sc = new Scanner(fis);
             while (sc.hasNextLine()) {
                 String line = sc.nextLine();
-                fileLines.add(line +"\n");
+                fileLines.add(line + "\n");
             }
             fis.close();
             sc.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            System.out.println("IOException thrown" + ex.getStackTrace());
         }
         return fileLines;
     }
@@ -65,7 +69,7 @@ public class MessageExtractorImpl implements MessageExtractor {
         }
 
         List<Message> validMessages = new ArrayList<>();
-        for(String line : messagesLines){
+        for (String line : messagesLines) {
             Message message = extractMessage(line);
             validMessages.add(message);
         }
@@ -104,15 +108,10 @@ public class MessageExtractorImpl implements MessageExtractor {
         String nonce = extractHeaderFieldValue(nonceField);
 
         Message message = new Message(fromEmail, toEmail, stamp, nonce, messageBody.toString());
-
         return message;
     }
 
-    private boolean isMessageHeaderValid(String fromEmail,
-                                         String toEmail,
-                                         String stamp,
-                                         String nonce) {
-
+    private boolean isMessageHeaderValid(String fromEmail, String toEmail, String stamp, String nonce) {
         boolean isFromEmailValid = fromEmail.matches(RegexUtil.FROM_EMAIL_REGEX);
         boolean isToEmailValid = toEmail.matches(RegexUtil.TO_EMAIL_REGEX);
         boolean isStampValid = stamp.matches(RegexUtil.STAMP_REGEX);
@@ -121,8 +120,8 @@ public class MessageExtractorImpl implements MessageExtractor {
         return isFromEmailValid && isToEmailValid && isStampValid && isNonceValid;
     }
 
-    private String extractHeaderFieldValue(String headerField){
-        String [] values = headerField.split(": ");
+    private String extractHeaderFieldValue(String headerField) {
+        String[] values = headerField.split(": ");
 
         return values[1];
     }
