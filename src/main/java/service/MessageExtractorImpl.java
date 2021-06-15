@@ -19,8 +19,7 @@ public class MessageExtractorImpl implements MessageExtractor {
     public List<Message> getMessages(String filename) {
         List<String> fileContent = readFileContent(filename);
 
-        List<Message> messages = extractMessages(fileContent);
-        return messages;
+        return extractMessages(fileContent);
     }
 
     @Override
@@ -57,14 +56,14 @@ public class MessageExtractorImpl implements MessageExtractor {
 
     private List<Message> extractMessages(List<String> fileContent) {
         List<String> messagesLines = new ArrayList<>();
-        StringBuffer messageBuffer = new StringBuffer();
+        StringBuilder stringBuilder = new StringBuilder();
 
         for (String s : fileContent) {
             if (isMessageEndingLine(s)) {
-                messagesLines.add(messageBuffer.toString());
-                messageBuffer = new StringBuffer();
+                messagesLines.add(stringBuilder.toString());
+                stringBuilder = new StringBuilder();
             } else {
-                messageBuffer.append(s);
+                stringBuilder.append(s);
             }
         }
 
@@ -77,7 +76,7 @@ public class MessageExtractorImpl implements MessageExtractor {
     }
 
     private boolean isMessageEndingLine(String line) {
-        return line.equals(".\n") ? true : false;
+        return line.equals(".\n");
     }
 
     private Message extractMessage(String messageLine) {
@@ -97,7 +96,7 @@ public class MessageExtractorImpl implements MessageExtractor {
             return null;
         }
 
-        StringBuffer messageBody = new StringBuffer();
+        StringBuilder messageBody = new StringBuilder();
         for (int i = 5; i < messageData.length; i++) {
             messageBody.append(messageData[i].concat("\n"));
         }
@@ -130,7 +129,7 @@ public class MessageExtractorImpl implements MessageExtractor {
         String messageStamp = message.getStamp();
         String encodedMessageBase64SHA = computeBase64SHA_ForMessage(message);
 
-        return messageStamp.equals(encodedMessageBase64SHA) ? true : false;
+        return messageStamp.equals(encodedMessageBase64SHA);
     }
 
     private String computeBase64SHA_ForMessage(Message message) throws NoSuchAlgorithmException {
